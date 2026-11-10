@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import ast
 import json
-import lzma
 from pathlib import Path
 
 from aiida.common import NotExistent
@@ -112,16 +111,11 @@ def phonon(params: dict[str, any]) -> None:
             print("Force constant top-level keys :", list(f.keys()))
 
     if bands:
-        bands_path = Path(node.get_remote_workdir()) / "aiida-auto_bands.yml.xz"
+        bands_path = Path(node.get_remote_workdir()) / "aiida-auto_bands.hdf5"
 
         # this will load the data
-        with lzma.open(bands_path, "rb") as f:
-            data = yaml.safe_load(f)
-
-        # this will write the data out in yaml format
-        # warning this could be a (very) big file
-        with open("bands_data.yml", "w") as file:
-            yaml.dump(data, file)
+        with h5py.File(bands_path, "r") as f:
+            print("Bands top-level keys :", list(f.keys()))
 
 
 # Arguments and options to give to the cli when running the script

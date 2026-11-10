@@ -160,23 +160,21 @@ class PhononParser(BaseParser):
 
             self.out("force_constants", hdf5_node)
 
-        # for band structure the required file is aiida-auto_bands.yml.xz
-        # this needs to be changed for hdf5 once janus-core is updated
         if bands:
-            bnds_output = "aiida-auto_bands.yml.xz"
-
             try:
                 filedata = self.retrieved.base.repository.get_object_content(
-                    bnds_output, mode="rb"
+                    "aiida-auto_bands.hdf5", mode="rb"
                 )
             except FileNotFoundError:
-                self.logger.info("exception in getting force constant filepath")
+                self.logger.info("exception in getting band structure filepath")
+
                 return self.exit_codes.ERROR_MISSING_OUTPUT
 
-            bands_path = remote_workdir / bnds_output
+            hdf5_path = remote_workdir / "aiida-auto_bands.hdf5"
 
-            bands_node = SinglefileData(file=bands_path)
+            hdf5_path.write_bytes(filedata)
+            hdf5_node = SinglefileData(file=hdf5_path)
 
-            self.out("band_structure", bands_node)
+            self.out("band_structure", hdf5_node)
 
         return ExitCode(0)
